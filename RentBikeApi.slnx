@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="RentBikeApi.Domain/RentBikeApi.Domain.csproj" />
+  <Project Path="RentBikeApi.Infrastructure/RentBikeApi.Infrastructure.csproj" />
+  <Project Path="RentBikeApi.IntegrationTests/RentBikeApi.IntegrationTests.csproj" />
+  <Project Path="RentBikeApi.UnitTests/RentBikeApi.UnitTests.csproj" />
+  <Project Path="RentBikeApi/RentBikeApi.csproj" />
+</Solution>

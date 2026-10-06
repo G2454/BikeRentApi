@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: rentbike
+      POSTGRES_PASSWORD: rentbike
+      POSTGRES_DB: rentbike
+    ports: ["5432:5432"]
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports: ["5672:5672", "15672:15672"]
