@@ -1,6 +1,43 @@
-@RentBikeApi_HostAddress = http://localhost:5116
+@host = http://localhost:5116
 
-GET {{RentBikeApi_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Create → 201
+POST {{host}}/motos
+Content-Type: application/json
 
-###
+{ "identificador": "moto123", "ano": 2020, "modelo": "Sport", "placa": "ABC-1234" }
+
+### 2. Duplicate plate → 400 {"mensagem":"Dados inválidos"}
+POST {{host}}/motos
+Content-Type: application/json
+
+{ "identificador": "moto456", "ano": 2021, "modelo": "Sport", "placa": "ABC-1234" }
+
+### 3. Duplicate id → 400
+POST {{host}}/motos
+Content-Type: application/json
+
+{ "identificador": "moto123", "ano": 2021, "modelo": "Sport", "placa": "DEF-5678" }
+
+### 4. List all → 200 [ ... ]
+GET {{host}}/motos
+
+### 5. Filter by plate → 200 with 1 item
+GET {{host}}/motos?placa=ABC-1234
+
+### 6. Not found → 404 {"mensagem":"Moto não encontrada"}
+GET {{host}}/motos/does-not-exist
+
+### 7. Change plate → 200 {"mensagem":"Placa modificada com sucesso"}
+PUT {{host}}/motos/moto123/placa
+Content-Type: application/json
+
+{ "placa": "XYZ-9999" }
+
+### 8. Empty body → 400 {"mensagem":"Dados inválidos"}
+POST {{host}}/motos
+Content-Type: application/json
+
+{ }
+
+### 9. Delete → 200 (then re-run #6 with moto123 → 404)
+DELETE {{host}}/motos/moto123
