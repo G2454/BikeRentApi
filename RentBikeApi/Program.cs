@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Infrastructure.Repositories;
 using RentBikeApi.Domain.Services;
+using RentBikeApi.Infrastructure.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<IMotorcycleRepository, MotorcycleRepository>();
 builder.Services.AddScoped<IMotorcycleService, MotorcycleService>();
+
+//Messaging
+
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMq"));
+builder.Services.AddSingleton<IEventPublisher, RabbitMqEventPublisher>();
+builder.Services.AddHostedService<MotorcycleRegisteredConsumer>();
+
+// Notifications
+
+builder.Services.AddScoped<IMotorcycleNotificationRepository, MotorcycleNotificationRepository>();
+builder.Services.AddScoped<IMotorcycleNotificationService, MotorcycleNotificationService>();
 
 
 builder.Services.AddControllers()

@@ -41,3 +41,16 @@ Content-Type: application/json
 
 ### 9. Delete → 200 (then re-run #6 with moto123 → 404)
 DELETE {{host}}/motos/moto123
+
+
+### 10. Moto from 2020 → 201, event published, NO notification stored
+POST {{host}}/motos
+Content-Type: application/json
+
+{ "identificador": "moto-2020", "ano": 2020, "modelo": "Sport", "placa": "AAA-2020" }
+
+### 11. Moto from 2024 → 201, event published, notification STORED
+POST {{host}}/motos
+Content-Type: application/json
+
+{ "identificador": "moto-2024.2", "ano": 2024, "modelo": "Sport", "placa": "BBB-2222" }

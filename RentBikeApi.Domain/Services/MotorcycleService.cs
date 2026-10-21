@@ -1,9 +1,10 @@
 using RentBikeApi.Domain.Entities;
 using RentBikeApi.Domain.Interfaces;
+using RentBikeApi.Domain.Events;
 
 namespace RentBikeApi.Domain.Services;
 
-public class MotorcycleService(IMotorcycleRepository repository): IMotorcycleService
+public class MotorcycleService(IMotorcycleRepository repository, IEventPublisher eventPublisher): IMotorcycleService
 {
     public async Task<bool> CreateAsync(Motorcycle motorcycle)
     {
@@ -21,6 +22,15 @@ public class MotorcycleService(IMotorcycleRepository repository): IMotorcycleSer
 
         await repository.AddAsync(motorcycle);
         await repository.SaveChangesAsync();
+
+        await eventPublisher.PublishAsync(new MotorcycleRegisteredEvent(
+            motorcycle.Id,
+            motorcycle.Year,
+            motorcycle.Model,
+            motorcycle.Plate,
+            DateTime.UtcNow
+            ));
+
         return true;
     }
 
