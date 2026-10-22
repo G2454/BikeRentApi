@@ -54,3 +54,100 @@ POST {{host}}/motos
 Content-Type: application/json
 
 { "identificador": "moto-2024.2", "ano": 2024, "modelo": "Sport", "placa": "BBB-2222" }
+
+
+### 12. Create courier type A with a PNG image → 201
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador1",
+  "nome": "João da Silva",
+  "cnpj": "12345678901234",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "12345678900",
+  "tipo_cnh": "A",
+  "imagem_cnh": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+}
+
+### 13. Create courier type A+B WITHOUT image → 201
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador2",
+  "nome": "Maria Souza",
+  "cnpj": "98765432109876",
+  "data_nascimento": "1995-05-10T00:00:00Z",
+  "numero_cnh": "98765432100",
+  "tipo_cnh": "A+B"
+}
+
+### 14. Duplicate CNPJ → 400
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador3",
+  "nome": "Outro",
+  "cnpj": "12345678901234",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "11111111111",
+  "tipo_cnh": "B"
+}
+
+### 15. Duplicate CNH number → 400
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador4",
+  "nome": "Outro",
+  "cnpj": "11111111111111",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "12345678900",
+  "tipo_cnh": "B"
+}
+
+### 16. Invalid license type "C" → 400 (rejected by the converter)
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador5",
+  "nome": "Outro",
+  "cnpj": "22222222222222",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "22222222222",
+  "tipo_cnh": "C"
+}
+
+### 17. Upload a BMP for entregador2 → 201
+POST {{host}}/entregadores/entregador2/cnh
+Content-Type: application/json
+
+{ "imagem_cnh": "Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA==" }
+
+### 18. Replace entregador1's image with a BMP → 201 (the old PNG file is deleted)
+POST {{host}}/entregadores/entregador1/cnh
+Content-Type: application/json
+
+{ "imagem_cnh": "Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA==" }
+
+### 19. Upload a JPEG → 400 (wrong format)
+POST {{host}}/entregadores/entregador1/cnh
+Content-Type: application/json
+
+{ "imagem_cnh": "/9j/4AAQSkZJRgABAQAAAQABAAA=" }
+
+### 20. Upload invalid base64 → 400
+POST {{host}}/entregadores/entregador1/cnh
+Content-Type: application/json
+
+{ "imagem_cnh": "this is not base64!!" }
+
+### 21. Upload for a courier that doesn't exist → 400
+POST {{host}}/entregadores/does-not-exist/cnh
+Content-Type: application/json
+
+{ "imagem_cnh": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" }

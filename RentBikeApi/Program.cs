@@ -7,6 +7,7 @@ using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Infrastructure.Repositories;
 using RentBikeApi.Domain.Services;
 using RentBikeApi.Infrastructure.Messaging;
+using RentBikeApi.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,14 @@ builder.Services.AddHostedService<MotorcycleRegisteredConsumer>();
 builder.Services.AddScoped<IMotorcycleNotificationRepository, MotorcycleNotificationRepository>();
 builder.Services.AddScoped<IMotorcycleNotificationService, MotorcycleNotificationService>();
 
+
+// Couriers
+builder.Services.AddScoped<ICourierRepository, CourierRepository>();
+builder.Services.AddScoped<ICourierService, CourierService>();
+
+// File Storage
+builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
+builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ => new BadRequestObjectResult(new MessageResponse("Dados inválidos")));

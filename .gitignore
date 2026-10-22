@@ -483,4 +483,7 @@ $RECYCLE.BIN/
 *.swp
 
 
+# Storage
+storage/
+
 Specifications.md

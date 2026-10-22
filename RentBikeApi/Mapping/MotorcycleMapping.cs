@@ -1,7 +1,7 @@
 using RentBikeApi.Contracts.Motorcycles;
 using RentBikeApi.Domain.Entities;
 
-namespace RentBikeApi.Mappings;
+namespace RentBikeApi.Mapping;
 
 public static class MotorcycleMappings
 {

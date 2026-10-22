@@ -2,7 +2,7 @@
 using RentBikeApi.Contracts;
 using RentBikeApi.Contracts.Motorcycles;
 using RentBikeApi.Domain.Interfaces;
-using RentBikeApi.Mappings;
+using RentBikeApi.Mapping;
 
 namespace RentBikeApi.Controllers
 {
