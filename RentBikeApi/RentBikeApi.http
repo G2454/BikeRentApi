@@ -151,3 +151,56 @@ POST {{host}}/entregadores/does-not-exist/cnh
 Content-Type: application/json
 
 { "imagem_cnh": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" }
+
+
+### D1. Formatted valid CNPJ and CNH → 201 (stored as 11222333000181 and 55555555555)
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador-cnpj",
+  "nome": "Teste CNPJ",
+  "cnpj": "11.222.333/0001-81",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "555.555.555-55",
+  "tipo_cnh": "A"
+}
+
+### D2. Same CNPJ in raw format → 400 (duplicate, thanks to normalization)
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador-cnpj-2",
+  "nome": "Teste CNPJ",
+  "cnpj": "11222333000181",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "66666666666",
+  "tipo_cnh": "A"
+}
+
+### D3. Invalid check digit → 400
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador-cnpj-3",
+  "nome": "Teste CNPJ",
+  "cnpj": "11222333000182",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "77777777777",
+  "tipo_cnh": "A"
+}
+
+### D4. CNH with 10 digits → 400
+POST {{host}}/entregadores
+Content-Type: application/json
+
+{
+  "identificador": "entregador-cnpj-4",
+  "nome": "Teste CNPJ",
+  "cnpj": "12345678000195",
+  "data_nascimento": "1990-01-01T00:00:00Z",
+  "numero_cnh": "1234567890",
+  "tipo_cnh": "A"
+}

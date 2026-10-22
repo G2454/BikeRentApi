@@ -17,7 +17,7 @@ namespace RentBikeApi.Controllers
         {
             var created = await service.CreateAsync(request.ToEntity(), request.LicenseImage);
             if (!created)
-                return BadRequest(new MessageResponse("Dados Inválidos"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
 
             return StatusCode(StatusCodes.Status201Created);
         }
@@ -27,7 +27,7 @@ namespace RentBikeApi.Controllers
         {
             var uploaded = await service.UpdateLicenseImageAsync(id, request.LicenseImage);
             if (!uploaded)
-                return BadRequest(new MessageResponse("Dados inválidos"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
 
             return StatusCode(StatusCodes.Status201Created);
         }

@@ -15,7 +15,7 @@ namespace RentBikeApi.Controllers
         {
             var created = await service.CreateAsync(request.ToEntity());
             if (!created)
-                return BadRequest(new MessageResponse("Dados inválidos"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
 
             return StatusCode(StatusCodes.Status201Created);
         }
@@ -32,7 +32,7 @@ namespace RentBikeApi.Controllers
         {
             var motorcycle = await service.GetByIdAsync(id);
             if (motorcycle is null)
-                return NotFound(new MessageResponse("Moto não encontrada"));
+                return NotFound(new MessageResponse(MessageResponse.InvalidData));
             return Ok(motorcycle.ToResponse());
         }
         [HttpPut("{id}/placa")]
@@ -40,7 +40,7 @@ namespace RentBikeApi.Controllers
         {
             var updated = await service.UpdatePlateAsync(id, request.Plate);
             if (!updated)
-                return BadRequest(new MessageResponse("Dados inválidos"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
             return Ok(new MessageResponse("Placa modificada com sucesso"));
         }
         [HttpDelete("{id}")]
@@ -48,7 +48,7 @@ namespace RentBikeApi.Controllers
         {
             var deleted = await service.DeleteAsync(id);
             if (!deleted)
-                return BadRequest(new MessageResponse("Dados inválidos"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
             return Ok();
         }
     }

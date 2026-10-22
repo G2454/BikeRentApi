@@ -8,10 +8,17 @@ namespace RentBikeApi.Domain.Services
     {
         public async Task<bool> CreateAsync(Courier courier, string? licenseImageBase64)
         {
+            courier.Cnpj = Cnpj.Normalize(courier.Cnpj);
+            courier.LicenseNumber = new string((courier.LicenseNumber ?? string.Empty).Where(char.IsAsciiDigit).ToArray());
+
             if (string.IsNullOrWhiteSpace(courier.Id) ||
-                string.IsNullOrWhiteSpace(courier.Name) ||
-                string.IsNullOrWhiteSpace(courier.Cnpj) ||
-                string.IsNullOrWhiteSpace(courier.LicenseNumber))
+                string.IsNullOrWhiteSpace(courier.Name))
+                return false;
+
+            if (!Cnpj.IsValid(courier.Cnpj))
+                return false;
+
+            if (courier.LicenseNumber.Length != 11)
                 return false;
 
             if (!Enum.IsDefined(courier.LicenseType))
@@ -26,11 +33,11 @@ namespace RentBikeApi.Domain.Services
 
             if (await repository.CnpjExistsAsync(courier.Cnpj))
                 return false;
-            
+
             if (await repository.LicenseNumberExistsAsync(courier.LicenseNumber))
                 return false;
 
-            if (!string.IsNullOrEmpty(licenseImageBase64))
+            if (!string.IsNullOrWhiteSpace(licenseImageBase64))
             {
                 if (!LicenseImageParser.TryParse(licenseImageBase64, out var content, out var extension))
                     return false;

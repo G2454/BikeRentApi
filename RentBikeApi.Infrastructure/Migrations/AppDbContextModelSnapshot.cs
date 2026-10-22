@@ -34,8 +34,8 @@ namespace RentBikeApi.Infrastructure.Migrations
 
                     b.Property<string>("Cnpj")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)")
                         .HasColumnName("cnpj");
 
                     b.Property<string>("LicenseImagePath")
@@ -45,8 +45,8 @@ namespace RentBikeApi.Infrastructure.Migrations
 
                     b.Property<string>("LicenseNumber")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)")
                         .HasColumnName("license_number");
 
                     b.Property<string>("LicenseType")

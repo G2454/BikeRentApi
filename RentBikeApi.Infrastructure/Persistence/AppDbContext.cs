@@ -38,8 +38,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(c => c.LicenseNumber).IsUnique();
 
             entity.Property(c => c.Name).IsRequired().HasMaxLength(150);
-            entity.Property(c => c.Cnpj).IsRequired().HasMaxLength(20);
-            entity.Property(c => c.LicenseNumber).IsRequired().HasMaxLength(20);
+            entity.Property(c => c.Cnpj).IsRequired().HasMaxLength(14);
+            entity.Property(c => c.LicenseNumber).IsRequired().HasMaxLength(11);
             entity.Property(c => c.LicenseType).HasConversion<string>().HasMaxLength(2);
             entity.Property(c => c.LicenseImagePath).HasMaxLength(500);
         });
