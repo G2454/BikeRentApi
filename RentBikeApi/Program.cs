@@ -40,6 +40,11 @@ builder.Services.AddScoped<ICourierService, CourierService>();
 builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));
 builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 
+
+// Rentals
+builder.Services.AddScoped<IRentalRepository, RentalRepository>();
+builder.Services.AddScoped<IRentalService, RentalService>();
+
 builder.Services.AddControllers()
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = _ => new BadRequestObjectResult(new MessageResponse(MessageResponse.InvalidData)));
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

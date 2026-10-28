@@ -145,6 +145,89 @@ namespace RentBikeApi.Infrastructure.Migrations
 
                     b.ToTable("motorcycle_notifications", (string)null);
                 });
+
+            modelBuilder.Entity("RentBikeApi.Domain.Entities.Rental", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CourierId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("courier_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("DailyRate")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("daily_rate");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<DateOnly>("ExpectedEndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("expected_end_date");
+
+                    b.Property<string>("MotorcycleId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("motorcycle_id");
+
+                    b.Property<int>("PlanDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("plan_days");
+
+                    b.Property<DateOnly?>("ReturnDate")
+                        .HasColumnType("date")
+                        .HasColumnName("return_date");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasColumnName("total_cost");
+
+                    b.HasKey("Id")
+                        .HasName("pk_rentals");
+
+                    b.HasIndex(new[] { "CourierId" }, "ix_rentals_one_open_per_courier")
+                        .IsUnique()
+                        .HasDatabaseName("ix_rentals_courier_id")
+                        .HasFilter("return_date IS NULL");
+
+                    b.HasIndex(new[] { "MotorcycleId" }, "ix_rentals_one_open_per_motorcycle")
+                        .IsUnique()
+                        .HasDatabaseName("ix_rentals_motorcycle_id")
+                        .HasFilter("return_date IS NULL");
+
+                    b.ToTable("rentals", (string)null);
+                });
+
+            modelBuilder.Entity("RentBikeApi.Domain.Entities.Rental", b =>
+                {
+                    b.HasOne("RentBikeApi.Domain.Entities.Courier", null)
+                        .WithMany()
+                        .HasForeignKey("CourierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_rentals_couriers_courier_id");
+
+                    b.HasOne("RentBikeApi.Domain.Entities.Motorcycle", null)
+                        .WithMany()
+                        .HasForeignKey("MotorcycleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_rentals_motorcycles_motorcycle_id");
+                });
 #pragma warning restore 612, 618
         }
     }

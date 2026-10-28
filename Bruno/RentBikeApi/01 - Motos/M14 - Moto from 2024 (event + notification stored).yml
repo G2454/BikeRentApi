@@ -1,0 +1,33 @@
+info:
+  name: M14 - Moto from 2024 (event + notification stored)
+  type: http
+  seq: 14
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{moto2024Id}}",
+        "ano": 2024,
+        "modelo": "Sport",
+        "placa": "{{moto2024Plate}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'Publishes MotorcycleRegisteredEvent. Because the year is 2024, the consumer stores a notification. Check it with: docker exec rentbikeapi-postgres-1 psql -U rentbike -d rentbike -c "select \* from motorcycle_notifications"'

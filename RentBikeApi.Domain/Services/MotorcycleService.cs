@@ -4,7 +4,7 @@ using RentBikeApi.Domain.Events;
 
 namespace RentBikeApi.Domain.Services;
 
-public class MotorcycleService(IMotorcycleRepository repository, IEventPublisher eventPublisher): IMotorcycleService
+public class MotorcycleService(IMotorcycleRepository repository, IEventPublisher eventPublisher, IRentalRepository rentalRepository) : IMotorcycleService
 {
     public async Task<bool> CreateAsync(Motorcycle motorcycle)
     {
@@ -63,7 +63,8 @@ public class MotorcycleService(IMotorcycleRepository repository, IEventPublisher
         if (motorcycle is null)
             return false;
 
-        //TODO: RETURN FALSE IF THIS MOTORCYCLE HAS RENTALS
+        if (await rentalRepository.ExistsForMotorcycleAsync(id))
+            return false;
 
 
         repository.Remove(motorcycle);

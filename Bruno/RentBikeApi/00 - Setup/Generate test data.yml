@@ -1,0 +1,91 @@
+info:
+  name: Generate test data
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/motos"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Generates unique test data for THIS run, so the collection can be run many times
+        // without "duplicate plate / CNPJ / id" errors from previous runs.
+        const run = Date.now().toString().slice(-6);
+        bru.setVar("run", run);
+
+        // ----- Motorcycles -----
+        bru.setVar("motoId", `moto-${run}`);
+        bru.setVar("motoPlate", `M${run}`);
+        bru.setVar("motoPlateNew", `N${run}`);
+        bru.setVar("moto2020Id", `moto-2020-${run}`);
+        bru.setVar("moto2020Plate", `A${run}`);
+        bru.setVar("moto2024Id", `moto-2024-${run}`);
+        bru.setVar("moto2024Plate", `B${run}`);
+        for (const n of [1, 2, 3]) {
+          bru.setVar(`rentMoto${n}Id`, `moto-rent${n}-${run}`);
+          bru.setVar(`rentMoto${n}Plate`, `R${n}${run}`);
+        }
+
+        // ----- Couriers: valid CNPJs (modulo 11 check digits) and 11-digit CNH numbers -----
+        function checkDigit(base, weights) {
+          const sum = weights.reduce((acc, weight, i) => acc + (base.charCodeAt(i) - 48) * weight, 0);
+          const remainder = sum % 11;
+          return remainder < 2 ? 0 : 11 - remainder;
+        }
+        function randomDigits(length) {
+          let digits = String(Math.floor(Math.random() * 9) + 1);
+          while (digits.length < length) digits += Math.floor(Math.random() * 10);
+          return digits;
+        }
+        function newCnpj() {
+          const base = randomDigits(8) + "0001";
+          const first = checkDigit(base, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+          const second = checkDigit(base + first, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+          return base + first + second;
+        }
+        function formatCnpj(c) {
+          return `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}`;
+        }
+
+        for (const key of ["A", "AB", "B", "A3"]) {
+          bru.setVar(`courier${key}Id`, `courier-${key.toLowerCase()}-${run}`);
+          bru.setVar(`courier${key}Cnpj`, newCnpj());
+          bru.setVar(`courier${key}Cnh`, randomDigits(11));
+        }
+        bru.setVar("spareCnpj", newCnpj());   // used by requests that must FAIL
+
+        const cnpjA = bru.getVar("courierACnpj");
+        bru.setVar("courierACnpjFormatted", formatCnpj(cnpjA));
+        // Same CNPJ with the last check digit changed → invalid
+        bru.setVar("invalidCnpj", cnpjA.slice(0, 13) + ((Number(cnpjA[13]) + 1) % 10));
+
+        // ----- Rental dates (UTC, the same clock the API uses) -----
+        function addDays(date, days) { const d = new Date(date); d.setUTCDate(d.getUTCDate() + days); return d; }
+        function isoDate(date) { return date.toISOString().slice(0, 10); }
+
+        const today = new Date();
+        const start = addDays(today, 1);                              // start = the day after creation
+        bru.setVar("today", isoDate(today));
+        bru.setVar("startDate", isoDate(start));
+        bru.setVar("end7", isoDate(addDays(start, 6)));               // 7-day plan: start + 6
+        bru.setVar("end15", isoDate(addDays(start, 14)));             // 15-day plan: start + 14
+        bru.setVar("earlyReturn7", isoDate(addDays(start, 4)));       // 5 of 7 days used
+        bru.setVar("lateReturn15", isoDate(addDays(start, 16)));      // 2 days after the 15-day end
+        bru.setVar("beforeStart", isoDate(addDays(today, -2)));
+
+        console.log(`Test run ${run}: rentals start on ${isoDate(start)}`);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

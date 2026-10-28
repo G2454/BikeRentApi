@@ -1,0 +1,16 @@
+info:
+  name: M12 - Empty strings and year 0
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

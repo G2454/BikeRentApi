@@ -1,0 +1,19 @@
+info:
+  name: M11 - Empty body
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: "{ }"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

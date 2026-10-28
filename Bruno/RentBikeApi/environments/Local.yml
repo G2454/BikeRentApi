@@ -1,0 +1,14 @@
+name: Local
+variables:
+  - name: baseUrl
+    value: http://localhost:5116
+    description: ""
+  - name: png
+    value: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=
+    description: ""
+  - name: bmp
+    value: Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA
+    description: ""
+  - name: jpeg
+    value: /9j/4AAQSkZJRgABAQAAAQABAAA=
+    description: ""

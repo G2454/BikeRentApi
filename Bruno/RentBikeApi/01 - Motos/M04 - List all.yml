@@ -1,0 +1,30 @@
+info:
+  name: M04 - List all
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{baseUrl}}/motos"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("returns an array containing the new moto", () => {
+          const ids = res.body.map(m => m.identificador);
+          expect(res.body).to.be.an("array");
+          expect(ids).to.include(bru.getVar("motoId"));
+        });
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

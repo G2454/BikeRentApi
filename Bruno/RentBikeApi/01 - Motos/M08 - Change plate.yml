@@ -1,0 +1,22 @@
+info:
+  name: M08 - Change plate
+  type: http
+  seq: 8
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/motos/{{motoId}}/placa"
+  body:
+    type: json
+    data: |-
+      {
+        "placa": "{{motoPlateNew}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

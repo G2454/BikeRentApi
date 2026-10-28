@@ -11,5 +11,7 @@ namespace RentBikeApi.Domain.Entities
         public string LicenseNumber { get; set; } = string.Empty;
         public LicenseType LicenseType { get; set; }
         public string? LicenseImagePath { get; set; }
+
+        public bool CanRentMotorcycle() => LicenseType is LicenseType.A or LicenseType.AB;
     }
 }

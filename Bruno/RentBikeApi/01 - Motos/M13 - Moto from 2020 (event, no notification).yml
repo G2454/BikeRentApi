@@ -1,0 +1,25 @@
+info:
+  name: M13 - Moto from 2020 (event, no notification)
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{moto2020Id}}",
+        "ano": 2020,
+        "modelo": "Sport",
+        "placa": "{{moto2020Plate}}"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

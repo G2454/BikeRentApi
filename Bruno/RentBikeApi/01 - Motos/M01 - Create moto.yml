@@ -1,0 +1,31 @@
+info:
+  name: M01 - Create moto
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{motoId}}",
+        "ano": 2021,
+        "modelo": "Sport",
+        "placa": "{{motoPlate}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
