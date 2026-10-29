@@ -1,0 +1,29 @@
+info:
+  name: C07 - Invalid CNPJ check digit
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "courier-bad-cnpj-{{run}}",
+        "nome": "Bad CNPJ",
+        "cnpj": "{{invalidCnpj}}",
+        "data_nascimento": "1990-01-01T00:00:00Z",
+        "numero_cnh": "1{{run}}0007",
+        "tipo_cnh": "A"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

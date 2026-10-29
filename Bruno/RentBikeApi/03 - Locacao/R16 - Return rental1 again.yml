@@ -1,0 +1,24 @@
+info:
+  name: R16 - Return rental1 again
+  type: http
+  seq: 19
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/locacao/{{rental1Id}}/devolucao"
+  body:
+    type: json
+    data: |-
+      {
+        "data_devolucao": "{{end7}}T00:00:00Z"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

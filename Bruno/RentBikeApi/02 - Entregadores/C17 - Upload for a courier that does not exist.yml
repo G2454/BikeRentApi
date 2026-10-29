@@ -1,0 +1,24 @@
+info:
+  name: C17 - Upload for a courier that does not exist
+  type: http
+  seq: 17
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores/does-not-exist-{{run}}/cnh"
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_cnh": "{{png}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

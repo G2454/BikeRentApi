@@ -1,0 +1,23 @@
+info:
+  name: R11 - Get rental1
+  type: http
+  seq: 14
+
+http:
+  method: GET
+  url: "{{baseUrl}}/locacao/{{rental1Id}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("is the rental created in R01", () => {
+          expect(res.body.identificador).to.equal(bru.getVar("rental1Id"));
+          expect(res.body.entregador_id).to.equal(bru.getVar("courierAId"));
+          expect(res.body.moto_id).to.equal(bru.getVar("rentMoto1Id"));
+        });
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"

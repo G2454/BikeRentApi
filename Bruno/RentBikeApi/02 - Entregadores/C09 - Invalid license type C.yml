@@ -1,0 +1,36 @@
+info:
+  name: C09 - Invalid license type C
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "courier-bad-type-{{run}}",
+        "nome": "Bad type",
+        "cnpj": "{{spareCnpj}}",
+        "data_nascimento": "1990-01-01T00:00:00Z",
+        "numero_cnh": "1{{run}}0009",
+        "tipo_cnh": "C"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

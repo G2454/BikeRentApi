@@ -1,0 +1,24 @@
+info:
+  name: R00b - Moto for rentals 2
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{rentMoto2Id}}",
+        "ano": 2023,
+        "modelo": "Sport",
+        "placa": "{{rentMoto2Plate}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"

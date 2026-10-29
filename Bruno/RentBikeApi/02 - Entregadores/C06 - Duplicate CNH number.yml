@@ -1,0 +1,29 @@
+info:
+  name: C06 - Duplicate CNH number
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "courier-dup-cnh-{{run}}",
+        "nome": "Duplicate CNH",
+        "cnpj": "{{spareCnpj}}",
+        "data_nascimento": "1990-01-01T00:00:00Z",
+        "numero_cnh": "{{courierACnh}}",
+        "tipo_cnh": "A"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

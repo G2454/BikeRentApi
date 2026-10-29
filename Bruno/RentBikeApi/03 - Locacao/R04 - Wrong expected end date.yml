@@ -1,0 +1,27 @@
+info:
+  name: R04 - Wrong expected end date
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierA3Id}}",
+        "moto_id": "{{rentMoto3Id}}",
+        "data_previsao_termino": "{{end15}}T00:00:00Z",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

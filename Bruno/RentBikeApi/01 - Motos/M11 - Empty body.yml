@@ -11,6 +11,15 @@ http:
     data: "{ }"
   auth: inherit
 
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'
+
 settings:
   encodeUrl: true
   timeout: 0

@@ -1,0 +1,22 @@
+info:
+  name: R18 - rental2 total is 520
+  type: http
+  seq: 21
+
+http:
+  method: GET
+  url: "{{baseUrl}}/locacao/{{rental2Id}}"
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.valor_total
+      operator: eq
+      value: "520"
+
+docs: |-
+  15-day plan returned 2 days late:
+  15 × R$28 = 420, plus 2 extra days × R$50 = 100. Total = 520.

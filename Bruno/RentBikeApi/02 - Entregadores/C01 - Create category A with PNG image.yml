@@ -1,0 +1,34 @@
+info:
+  name: C01 - Create category A with PNG image
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{courierAId}}",
+        "nome": "Ana A",
+        "cnpj": "{{courierACnpj}}",
+        "data_nascimento": "1990-01-01T00:00:00Z",
+        "numero_cnh": "{{courierACnh}}",
+        "tipo_cnh": "A",
+        "imagem_cnh": "{{png}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,24 @@
+info:
+  name: R13 - Return before the start date
+  type: http
+  seq: 16
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/locacao/{{rental1Id}}/devolucao"
+  body:
+    type: json
+    data: |-
+      {
+        "data_devolucao": "{{beforeStart}}T00:00:00Z"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

@@ -1,0 +1,26 @@
+info:
+  name: R05 - Invalid plan
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierA3Id}}",
+        "moto_id": "{{rentMoto3Id}}",
+        "plano": 10
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

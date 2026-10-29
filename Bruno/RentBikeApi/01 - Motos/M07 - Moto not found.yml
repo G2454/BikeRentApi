@@ -8,9 +8,11 @@ http:
   url: "{{baseUrl}}/motos/does-not-exist-{{run}}"
   auth: inherit
 
-settings:
-  encodeUrl: true
-  timeout: 0
-  followRedirects: true
-  maxRedirects: 5
-  forwardAuthorizationHeader: false
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Moto não encontrada"'

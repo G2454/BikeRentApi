@@ -8,6 +8,18 @@ http:
   url: "{{baseUrl}}/motos/{{motoId}}"
   auth: inherit
 
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("has the new plate", () => {
+          expect(res.body.placa).to.equal(bru.getVar("motoPlateNew"));
+        });
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
 settings:
   encodeUrl: true
   timeout: 0

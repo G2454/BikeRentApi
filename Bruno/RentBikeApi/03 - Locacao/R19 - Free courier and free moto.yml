@@ -1,0 +1,30 @@
+info:
+  name: R19 - Free courier and free moto
+  type: http
+  seq: 22
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierA3Id}}",
+        "moto_id": "{{rentMoto3Id}}",
+        "plano": 30
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.valor_diaria
+      operator: eq
+      value: "22"
+
+docs: |-
+  The positive counterpart of R03–R10: the same courier and motorcycle that were
+  rejected for other reasons can rent when everything is valid.

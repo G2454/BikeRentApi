@@ -1,0 +1,56 @@
+info:
+  name: R01 - 7-day rental without dates
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierAId}}",
+        "moto_id": "{{rentMoto1Id}}",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Save the new rental's id so the next requests can use {{rental1Id}}
+        bru.setVar("rental1Id", res.body.identificador);
+    - type: tests
+      code: |-
+        test("uses the contract property names", () => {
+          expect(res.body).to.include.all.keys(
+            "identificador", "valor_diaria", "entregador_id", "moto_id",
+            "data_inicio", "data_termino", "data_previsao_termino", "data_devolucao");
+        });
+
+        test("has a Location header pointing to the new rental", () => {
+          expect(res.getHeader("location")).to.include(res.body.identificador);
+        });
+
+        test("starts tomorrow", () => {
+          expect(res.body.data_inicio).to.match(new RegExp("^" + bru.getVar("startDate")));
+        });
+
+        test("ends on start + 6 days", () => {
+          const end7 = new RegExp("^" + bru.getVar("end7"));
+          expect(res.body.data_termino).to.match(end7);
+          expect(res.body.data_previsao_termino).to.match(end7);
+        });
+
+        test("is not returned yet", () => {
+          expect(res.body.data_devolucao).to.be.null;
+        });
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.valor_diaria
+      operator: eq
+      value: "30"

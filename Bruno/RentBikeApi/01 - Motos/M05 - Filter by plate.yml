@@ -14,7 +14,7 @@ http:
 
 runtime:
   scripts:
-    - type: after-response
+    - type: tests
       code: |-
         test("returns exactly the filtered moto", () => {
           expect(res.body).to.have.lengthOf(1);

@@ -1,0 +1,26 @@
+info:
+  name: R06 - Courier with category B only
+  type: http
+  seq: 9
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierBId}}",
+        "moto_id": "{{rentMoto3Id}}",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

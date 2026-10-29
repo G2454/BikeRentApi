@@ -1,0 +1,33 @@
+info:
+  name: C02 - Create category A+B without image
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{courierABId}}",
+        "nome": "Bruno AB",
+        "cnpj": "{{courierABCnpj}}",
+        "data_nascimento": "1991-02-02T00:00:00Z",
+        "numero_cnh": "{{courierABCnh}}",
+        "tipo_cnh": "A+B"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,24 @@
+info:
+  name: R00a - Moto for rentals 1
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{rentMoto1Id}}",
+        "ano": 2023,
+        "modelo": "Sport",
+        "placa": "{{rentMoto1Plate}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"

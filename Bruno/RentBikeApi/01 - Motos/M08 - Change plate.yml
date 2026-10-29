@@ -14,6 +14,15 @@ http:
       }
   auth: inherit
 
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Placa modificada com sucesso"'
+
 settings:
   encodeUrl: true
   timeout: 0

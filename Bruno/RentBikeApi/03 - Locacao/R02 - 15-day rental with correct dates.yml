@@ -1,0 +1,33 @@
+info:
+  name: R02 - 15-day rental with correct dates
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierABId}}",
+        "moto_id": "{{rentMoto2Id}}",
+        "data_inicio": "{{startDate}}T00:00:00Z",
+        "data_termino": "{{end15}}T23:59:59Z",
+        "data_previsao_termino": "{{end15}}T23:59:59Z",
+        "plano": 15
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("rental2Id", res.body.identificador);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+    - expression: res.body.valor_diaria
+      operator: eq
+      value: "28"

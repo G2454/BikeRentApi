@@ -1,0 +1,26 @@
+info:
+  name: R08 - Moto does not exist
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierA3Id}}",
+        "moto_id": "does-not-exist-{{run}}",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

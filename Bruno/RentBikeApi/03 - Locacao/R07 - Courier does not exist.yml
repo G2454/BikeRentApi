@@ -1,0 +1,26 @@
+info:
+  name: R07 - Courier does not exist
+  type: http
+  seq: 10
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "does-not-exist-{{run}}",
+        "moto_id": "{{rentMoto3Id}}",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

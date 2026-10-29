@@ -1,0 +1,21 @@
+info:
+  name: C12 - Upload BMP for the A+B courier
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores/{{courierABId}}/cnh"
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_cnh": "{{bmp}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"

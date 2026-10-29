@@ -1,0 +1,24 @@
+info:
+  name: C15 - Upload a JPEG
+  type: http
+  seq: 15
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores/{{courierAId}}/cnh"
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_cnh": "{{jpeg}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

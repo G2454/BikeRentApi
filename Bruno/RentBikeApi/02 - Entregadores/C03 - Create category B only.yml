@@ -1,0 +1,33 @@
+info:
+  name: C03 - Create category B only
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{courierBId}}",
+        "nome": "Carlos B",
+        "cnpj": "{{courierBCnpj}}",
+        "data_nascimento": "1992-03-15T00:00:00Z",
+        "numero_cnh": "{{courierBCnh}}",
+        "tipo_cnh": "B"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

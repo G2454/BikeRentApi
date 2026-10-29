@@ -17,6 +17,12 @@ http:
       }
   auth: inherit
 
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
 settings:
   encodeUrl: true
   timeout: 0

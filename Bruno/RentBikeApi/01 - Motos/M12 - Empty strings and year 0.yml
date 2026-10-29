@@ -6,7 +6,25 @@ info:
 http:
   method: POST
   url: "{{baseUrl}}/motos"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "",
+        "ano": 0,
+        "modelo": "",
+        "placa": ""
+      }
   auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'
 
 settings:
   encodeUrl: true

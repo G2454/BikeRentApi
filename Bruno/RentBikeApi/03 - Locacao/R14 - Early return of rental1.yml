@@ -1,0 +1,24 @@
+info:
+  name: R14 - Early return of rental1
+  type: http
+  seq: 17
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/locacao/{{rental1Id}}/devolucao"
+  body:
+    type: json
+    data: |-
+      {
+        "data_devolucao": "{{earlyReturn7}}T00:00:00Z"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Data de devolução informada com sucesso"'

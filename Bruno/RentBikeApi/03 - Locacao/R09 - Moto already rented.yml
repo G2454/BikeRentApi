@@ -1,0 +1,30 @@
+info:
+  name: R09 - Moto already rented
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/locacao"
+  body:
+    type: json
+    data: |-
+      {
+        "entregador_id": "{{courierA3Id}}",
+        "moto_id": "{{rentMoto1Id}}",
+        "plano": 7
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'
+
+docs: |-
+  rentMoto1 is in rental1 (R01). The courier (A3) is free, so the ONLY reason
+  to reject is the busy motorcycle.

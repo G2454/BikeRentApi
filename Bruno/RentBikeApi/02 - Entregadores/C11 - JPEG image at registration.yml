@@ -1,0 +1,30 @@
+info:
+  name: C11 - JPEG image at registration
+  type: http
+  seq: 11
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "courier-jpeg-{{run}}",
+        "nome": "JPEG",
+        "cnpj": "{{spareCnpj}}",
+        "data_nascimento": "1990-01-01T00:00:00Z",
+        "numero_cnh": "1{{run}}0011",
+        "tipo_cnh": "A",
+        "imagem_cnh": "{{jpeg}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

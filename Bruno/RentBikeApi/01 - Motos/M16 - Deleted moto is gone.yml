@@ -8,6 +8,15 @@ http:
   url: "{{baseUrl}}/motos/{{motoId}}"
   auth: inherit
 
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "404"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'
+
 settings:
   encodeUrl: true
   timeout: 0

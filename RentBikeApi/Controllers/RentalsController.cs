@@ -42,7 +42,7 @@ namespace RentBikeApi.Controllers
             var returned = await service.ReturnAsync(id, DateOnly.FromDateTime(request.ReturnDate));
 
             if (!returned)
-                return BadRequest(new MessageResponse("Data de devolução informada com sucesso"));
+                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
 
             return Ok(new MessageResponse("Data de devolução informada com sucesso"));
         }

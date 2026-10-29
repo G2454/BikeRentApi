@@ -8,6 +8,25 @@ http:
   url: "{{baseUrl}}/motos/{{motoId}}"
   auth: inherit
 
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("uses the contract property names", () => {
+          expect(res.body).to.have.all.keys("identificador", "ano", "modelo", "placa");
+        });
+
+        test("is the moto created in M01", () => {
+          expect(res.body.identificador).to.equal(bru.getVar("motoId"));
+        });
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+    - expression: res.body.ano
+      operator: eq
+      value: "2020"
+
 settings:
   encodeUrl: true
   timeout: 0

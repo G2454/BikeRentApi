@@ -1,0 +1,33 @@
+info:
+  name: C04 - Create another category A
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "{{courierA3Id}}",
+        "nome": "Diana A",
+        "cnpj": "{{courierA3Cnpj}}",
+        "data_nascimento": "1988-07-20T00:00:00Z",
+        "numero_cnh": "{{courierA3Cnh}}",
+        "tipo_cnh": "A"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

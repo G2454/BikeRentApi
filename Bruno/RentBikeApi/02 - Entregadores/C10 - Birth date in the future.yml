@@ -1,0 +1,29 @@
+info:
+  name: C10 - Birth date in the future
+  type: http
+  seq: 10
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores"
+  body:
+    type: json
+    data: |-
+      {
+        "identificador": "courier-future-{{run}}",
+        "nome": "Future",
+        "cnpj": "{{spareCnpj}}",
+        "data_nascimento": "2100-01-01T00:00:00Z",
+        "numero_cnh": "1{{run}}0010",
+        "tipo_cnh": "A"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "400"
+    - expression: res.body.mensagem
+      operator: eq
+      value: '"Dados inválidos"'

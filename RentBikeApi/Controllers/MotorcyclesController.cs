@@ -32,7 +32,7 @@ namespace RentBikeApi.Controllers
         {
             var motorcycle = await service.GetByIdAsync(id);
             if (motorcycle is null)
-                return NotFound(new MessageResponse(MessageResponse.InvalidData));
+                return NotFound(new MessageResponse("Moto não encontrada"));
             return Ok(motorcycle.ToResponse());
         }
         [HttpPut("{id}/placa")]

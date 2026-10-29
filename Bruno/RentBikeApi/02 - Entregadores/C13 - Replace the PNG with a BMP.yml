@@ -1,0 +1,25 @@
+info:
+  name: C13 - Replace the PNG with a BMP
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores/{{courierAId}}/cnh"
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_cnh": "{{bmp}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
+
+docs: |-
+  Courier A got a PNG in C01. After this request, the PNG file must be DELETED from
+  RentBikeApi/storage/cnh/ and replaced by a BMP. Check the folder manually.

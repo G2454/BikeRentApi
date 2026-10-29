@@ -1,0 +1,21 @@
+info:
+  name: C14 - Upload with data URI prefix
+  type: http
+  seq: 14
+
+http:
+  method: POST
+  url: "{{baseUrl}}/entregadores/{{courierBId}}/cnh"
+  body:
+    type: json
+    data: |-
+      {
+        "imagem_cnh": "data:image/png;base64,{{png}}"
+      }
+  auth: inherit
+
+runtime:
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "201"
