@@ -15,7 +15,7 @@ runtime:
       value: "404"
     - expression: res.body.mensagem
       operator: eq
-      value: '"Dados inválidos"'
+      value: '"Moto não encontrada"'
 
 settings:
   encodeUrl: true

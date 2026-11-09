@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RentBikeApi.Domain.Common;
 using RentBikeApi.Domain.Entities;
 
 namespace RentBikeApi.Infrastructure.Persistence;
@@ -9,6 +10,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<MotorcycleNotification> MotorcycleNotifications => Set<MotorcycleNotification>();
     public DbSet<Courier> Couriers => Set<Courier>();
     public DbSet<Rental> Rentals => Set<Rental>();
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException exception) when (DatabaseErrorTranslator.Translate(exception) is { } error)
+        {
+            throw new DomainException(error, exception);
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Motorcycle>(entity =>
@@ -17,16 +31,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(m => m.Plate).IsUnique();
             entity.Property(m => m.Model).IsRequired();
             entity.Property(m => m.Plate).IsRequired();
-            entity.Property(m => m.Model).HasMaxLength(100);
-            entity.Property(m => m.Plate).HasMaxLength(12);
+            entity.Property(m => m.Model).HasMaxLength(Motorcycle.ModelMaxLength);
+            entity.Property(m => m.Plate).HasMaxLength(Motorcycle.PlateMaxLength);
         });
 
         modelBuilder.Entity<MotorcycleNotification>(entity =>
         {
             entity.HasKey(n => n.Id);
             entity.Property(n => n.MotorcycleId).IsRequired().HasMaxLength(100);
-            entity.Property(n => n.Model).IsRequired().HasMaxLength(100);
-            entity.Property(n => n.Plate).IsRequired().HasMaxLength(12);
+            entity.Property(n => n.Model).IsRequired().HasMaxLength(Motorcycle.ModelMaxLength);
+            entity.Property(n => n.Plate).IsRequired().HasMaxLength(Motorcycle.PlateMaxLength);
         });
 
         modelBuilder.Entity<Courier>(entity =>
@@ -36,7 +50,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(c => c.Cnpj).IsUnique();
             entity.HasIndex(c => c.LicenseNumber).IsUnique();
 
-            entity.Property(c => c.Name).IsRequired().HasMaxLength(150);
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(Courier.NameMaxLength);
             entity.Property(c => c.Cnpj).IsRequired().HasMaxLength(14);
             entity.Property(c => c.LicenseNumber).IsRequired().HasMaxLength(11);
             entity.Property(c => c.LicenseType).HasConversion<string>().HasMaxLength(2);
@@ -60,10 +74,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(r => r.MotorcycleId, "ix_rentals_one_open_per_motorcycle")
+            .HasDatabaseName(DatabaseErrorTranslator.OneOpenRentalPerMotorcycle)
             .IsUnique()
             .HasFilter("return_date IS NULL");
 
             entity.HasIndex(r => r.CourierId, "ix_rentals_one_open_per_courier")
+            .HasDatabaseName(DatabaseErrorTranslator.OneOpenRentalPerCourier)
             .IsUnique()
             .HasFilter("return_date IS NULL");
         });

@@ -5,9 +5,7 @@ using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Mapping;
 
 namespace RentBikeApi.Controllers
-
 {
-
     [ApiController]
     [Route("entregadores")]
     public class CouriersController(ICourierService service) : ControllerBase
@@ -15,9 +13,9 @@ namespace RentBikeApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCourierRequest request)
         {
-            var created = await service.CreateAsync(request.ToEntity(), request.LicenseImage);
-            if (!created)
-                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
+            var result = await service.CreateAsync(request.ToEntity(), request.LicenseImage);
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.InvalidData(result.Error));
 
             return StatusCode(StatusCodes.Status201Created);
         }
@@ -25,13 +23,11 @@ namespace RentBikeApi.Controllers
         [HttpPost("{id}/cnh")]
         public async Task<IActionResult> UploadLicenseImage(string id, [FromBody] UploadLicenseImageRequest request)
         {
-            var uploaded = await service.UpdateLicenseImageAsync(id, request.LicenseImage);
-            if (!uploaded)
-                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
+            var result = await service.UpdateLicenseImageAsync(id, request.LicenseImage);
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.InvalidData(result.Error));
 
             return StatusCode(StatusCodes.Status201Created);
         }
     }
 }
-
-

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RentBikeApi.Domain.Interfaces;
+using RentBikeApi.Infrastructure.Observability;
 
 namespace RentBikeApi.Infrastructure.Messaging
 {
@@ -20,7 +21,8 @@ namespace RentBikeApi.Infrastructure.Messaging
             var properties = new BasicProperties
             {
                 Persistent = true,
-                ContentType = "application/json"
+                ContentType = "application/json",
+                CorrelationId = CorrelationContext.Current
             };
             await _lock.WaitAsync();
             try

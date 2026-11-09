@@ -7,6 +7,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RentBikeApi.Domain.Events;
 using RentBikeApi.Domain.Interfaces;
+using RentBikeApi.Infrastructure.Observability;
 
 namespace RentBikeApi.Infrastructure.Messaging
 {
@@ -45,10 +46,15 @@ namespace RentBikeApi.Infrastructure.Messaging
 
         private async Task HandleMessageAsync(object sender, BasicDeliverEventArgs args)
         {
+            var correlationId = args.BasicProperties.CorrelationId ?? Guid.NewGuid().ToString("N");
+            CorrelationContext.Current = correlationId;
+
+            using var logScope = logger.BeginScope(new Dictionary<string, object> { ["CorrelationId"] = correlationId });
+
             try
             {
                 var @event = JsonSerializer.Deserialize<MotorcycleRegisteredEvent>(args.Body.Span);
-                if(@event is not null)
+                if (@event is not null)
                 {
                     await using var scope = scopeFactory.CreateAsyncScope();
                     var service = scope.ServiceProvider.GetRequiredService<IMotorcycleNotificationService>();

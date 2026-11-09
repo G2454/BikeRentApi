@@ -4,6 +4,7 @@ namespace RentBikeApi.Domain.Entities
 {
     public class Courier
     {
+        public const int NameMaxLength = 150;
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Cnpj { get; set; } = string.Empty;

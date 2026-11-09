@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RentBikeApi.Contracts;
 using RentBikeApi.Contracts.Motorcycles;
+using RentBikeApi.Domain.Errors;
 using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Mapping;
 
@@ -13,9 +14,9 @@ namespace RentBikeApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateMotorcycleRequest request)
         {
-            var created = await service.CreateAsync(request.ToEntity());
-            if (!created)
-                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
+            var result = await service.CreateAsync(request.ToEntity());
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.InvalidData(result.Error));
 
             return StatusCode(StatusCodes.Status201Created);
         }
@@ -32,25 +33,26 @@ namespace RentBikeApi.Controllers
         {
             var motorcycle = await service.GetByIdAsync(id);
             if (motorcycle is null)
-                return NotFound(new MessageResponse("Moto não encontrada"));
+                return NotFound(new MessageResponse(MotorcycleErrors.NotFound.Description));
             return Ok(motorcycle.ToResponse());
         }
+
         [HttpPut("{id}/placa")]
         public async Task<IActionResult> UpdatePlate(string id, [FromBody] UpdatePlateRequest request)
         {
-            var updated = await service.UpdatePlateAsync(id, request.Plate);
-            if (!updated)
-                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
+            var result = await service.UpdatePlateAsync(id, request.Plate);
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.InvalidData(result.Error));
             return Ok(new MessageResponse("Placa modificada com sucesso"));
         }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await service.DeleteAsync(id);
-            if (!deleted)
-                return BadRequest(new MessageResponse(MessageResponse.InvalidData));
+            var result = await service.DeleteAsync(id);
+            if (result.IsFailure)
+                return BadRequest(ErrorResponse.InvalidData(result.Error));
             return Ok();
         }
     }
-
 }

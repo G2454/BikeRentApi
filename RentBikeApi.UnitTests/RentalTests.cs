@@ -1,5 +1,6 @@
 ﻿using RentBikeApi.Domain.Entities;
 using RentBikeApi.Domain.Enums;
+using RentBikeApi.Domain.Errors;
 using RentBikeApi.Domain.ValueObjects;
 
 namespace RentBikeApi.UnitTests;
@@ -23,10 +24,9 @@ public class RentalTests
         };
     }
 
-    // ----- Cost calculation -----
 
     [Theory]
-    [InlineData(7, 6, 210)]    // returned on the expected end date
+    [InlineData(7, 6, 210)]   
     [InlineData(7, 4, 162)]    // 5 days used + 20% penalty on 2 unused days
     [InlineData(7, 8, 310)]    // 2 days late: 210 + 2 × 50
     [InlineData(15, 9, 336)]   // 10 days used + 40% penalty on 5 unused days
@@ -42,16 +42,15 @@ public class RentalTests
         Assert.Equal(expectedTotal, total);
     }
 
-    // ----- Registering the return -----
 
     [Fact]
     public void RegisterReturn_SetsDateAndTotal()
     {
         var rental = CreateRental(7);
 
-        var registered = rental.RegisterReturn(Start.AddDays(4));
+        var result = rental.RegisterReturn(Start.AddDays(4));
 
-        Assert.True(registered);
+        Assert.True(result.IsSuccess);
         Assert.Equal(Start.AddDays(4), rental.ReturnDate);
         Assert.Equal(162m, rental.TotalCost);
     }
@@ -62,11 +61,11 @@ public class RentalTests
         var rental = CreateRental(7);
         rental.RegisterReturn(Start.AddDays(4));
 
-        var registeredAgain = rental.RegisterReturn(Start.AddDays(6));
+        var result = rental.RegisterReturn(Start.AddDays(6));
 
-        Assert.False(registeredAgain);
-        Assert.Equal(Start.AddDays(4), rental.ReturnDate);   // unchanged
-        Assert.Equal(162m, rental.TotalCost);                // unchanged
+        Assert.Equal(RentalErrors.AlreadyReturned, result.Error);
+        Assert.Equal(Start.AddDays(4), rental.ReturnDate);  
+        Assert.Equal(162m, rental.TotalCost);                
     }
 
     [Fact]
@@ -74,9 +73,9 @@ public class RentalTests
     {
         var rental = CreateRental(7);
 
-        var registered = rental.RegisterReturn(Start.AddDays(-1));
+        var result = rental.RegisterReturn(Start.AddDays(-1));
 
-        Assert.False(registered);
+        Assert.Equal(RentalErrors.ReturnBeforeStart, result.Error);
         Assert.Null(rental.ReturnDate);
         Assert.Null(rental.TotalCost);
     }

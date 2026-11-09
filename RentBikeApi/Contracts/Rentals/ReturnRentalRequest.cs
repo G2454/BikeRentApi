@@ -3,6 +3,6 @@
 namespace RentBikeApi.Contracts.Rentals
 {
     public record ReturnRentalRequest(
-        [property: JsonPropertyName("data_devolucao")] DateTime ReturnDate
+        [property: JsonPropertyName("data_devolucao"), JsonRequired] DateTime ReturnDate
         );
 }

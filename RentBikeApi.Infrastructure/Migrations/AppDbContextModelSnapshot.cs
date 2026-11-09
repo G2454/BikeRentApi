@@ -201,12 +201,12 @@ namespace RentBikeApi.Infrastructure.Migrations
 
                     b.HasIndex(new[] { "CourierId" }, "ix_rentals_one_open_per_courier")
                         .IsUnique()
-                        .HasDatabaseName("ix_rentals_courier_id")
+                        .HasDatabaseName("ix_rentals_one_open_per_courier")
                         .HasFilter("return_date IS NULL");
 
                     b.HasIndex(new[] { "MotorcycleId" }, "ix_rentals_one_open_per_motorcycle")
                         .IsUnique()
-                        .HasDatabaseName("ix_rentals_motorcycle_id")
+                        .HasDatabaseName("ix_rentals_one_open_per_motorcycle")
                         .HasFilter("return_date IS NULL");
 
                     b.ToTable("rentals", (string)null);

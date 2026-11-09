@@ -1,4 +1,8 @@
-﻿using RentBikeApi.Domain.ValueObjects;
+﻿using RentBikeApi.Domain.Common;
+using RentBikeApi.Domain.Errors;
+using RentBikeApi.Domain.ValueObjects;
+
+
 
 namespace RentBikeApi.Domain.Entities;
 
@@ -42,16 +46,16 @@ public class Rental
         return plan.Days * DailyRate;
     }
 
-    public bool RegisterReturn(DateOnly returnDate)
+    public Result RegisterReturn(DateOnly returnDate)
     {
         if (ReturnDate is not null)
-            return false;
+            return RentalErrors.AlreadyReturned;
 
         if (returnDate < StartDate)
-            return false;
+            return RentalErrors.ReturnBeforeStart;
 
         ReturnDate = returnDate;
         TotalCost = CalculateTotalCost(returnDate);
-        return true;
+        return Result.Success();
     }
 }

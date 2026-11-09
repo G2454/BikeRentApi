@@ -1,72 +1,112 @@
-﻿using RentBikeApi.Domain.Entities;
+﻿using Microsoft.Extensions.Logging;
+using RentBikeApi.Domain.Common;
+using RentBikeApi.Domain.Entities;
+using RentBikeApi.Domain.Errors;
 using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Domain.Validation;
 
 namespace RentBikeApi.Domain.Services
 {
-    public class CourierService(ICourierRepository repository, IFileStorage fileStorage): ICourierService
+    public class CourierService(
+        ICourierRepository repository,
+        IFileStorage fileStorage,
+        ILogger<CourierService> logger) : ICourierService
     {
-        public async Task<bool> CreateAsync(Courier courier, string? licenseImageBase64)
+        public async Task<Result> CreateAsync(Courier courier, string? licenseImageBase64)
         {
             courier.Cnpj = Cnpj.Normalize(courier.Cnpj);
             courier.LicenseNumber = new string((courier.LicenseNumber ?? string.Empty).Where(char.IsAsciiDigit).ToArray());
 
-            if (string.IsNullOrWhiteSpace(courier.Id) ||
-                string.IsNullOrWhiteSpace(courier.Name))
-                return false;
+            // 1. Rules that only need the request data (cheap, no I/O)
+            if (string.IsNullOrWhiteSpace(courier.Id))
+                return CourierErrors.IdRequired;
+
+            if (string.IsNullOrWhiteSpace(courier.Name))
+                return CourierErrors.NameRequired;
+
+            if (courier.Name.Length > Courier.NameMaxLength)
+                return CourierErrors.NameTooLong;
 
             if (!Cnpj.IsValid(courier.Cnpj))
-                return false;
+                return CourierErrors.InvalidCnpj;
 
             if (courier.LicenseNumber.Length != 11)
-                return false;
+                return CourierErrors.InvalidLicenseNumber;
 
             if (!Enum.IsDefined(courier.LicenseType))
-                return false;
+                return CourierErrors.InvalidLicenseType;
 
             if (courier.BirthDate == default ||
                 courier.BirthDate > DateOnly.FromDateTime(DateTime.UtcNow))
-                return false;
+                return CourierErrors.InvalidBirthDate;
 
+            byte[]? imageContent = null;
+            var imageExtension = string.Empty;
+            if (!string.IsNullOrWhiteSpace(licenseImageBase64) &&
+                !LicenseImageParser.TryParse(licenseImageBase64, out imageContent, out imageExtension))
+                return CourierErrors.InvalidLicenseImage;
+
+            // 2. Rules that need the database
             if (await repository.GetByIdAsync(courier.Id) is not null)
-                return false;
+                return CourierErrors.IdInUse;
 
             if (await repository.CnpjExistsAsync(courier.Cnpj))
-                return false;
+                return CourierErrors.CnpjInUse;
 
             if (await repository.LicenseNumberExistsAsync(courier.LicenseNumber))
-                return false;
+                return CourierErrors.LicenseNumberInUse;
 
-            if (!string.IsNullOrWhiteSpace(licenseImageBase64))
+            // 3. Everything is valid: write the file, then the row
+            if (imageContent is not null)
+                courier.LicenseImagePath = await fileStorage.SaveAsync(imageContent, $"{Guid.NewGuid()}{imageExtension}");
+
+            try
             {
-                if (!LicenseImageParser.TryParse(licenseImageBase64, out var content, out var extension))
-                    return false;
-                courier.LicenseImagePath = await fileStorage.SaveAsync(content, $"{Guid.NewGuid()}{extension}");
+                await repository.AddAsync(courier);
+                await repository.SaveChangesAsync();
+            }
+            catch
+            {
+                // The database refused the row (e.g. a concurrent request took the same CNPJ).
+                // Remove the image we just wrote, or it stays on disk forever with no owner.
+                if (courier.LicenseImagePath is not null)
+                    await fileStorage.DeleteAsync(courier.LicenseImagePath);
+                throw;
             }
 
-            await repository.AddAsync(courier);
-            await repository.SaveChangesAsync();
-            return true;
+            logger.LogInformation("Courier {CourierId} registered with license type {LicenseType}", courier.Id, courier.LicenseType);
+            return Result.Success();
         }
 
-        public async Task<bool> UpdateLicenseImageAsync(string id, string licenseImageBase64)
+        public async Task<Result> UpdateLicenseImageAsync(string id, string licenseImageBase64)
         {
             var courier = await repository.GetByIdAsync(id);
             if (courier is null)
-                return false;
+                return CourierErrors.NotFound;
+
             if (!LicenseImageParser.TryParse(licenseImageBase64, out var content, out var extension))
-                return false;
+                return CourierErrors.InvalidLicenseImage;
 
             var previousPath = courier.LicenseImagePath;
+            var newPath = await fileStorage.SaveAsync(content, $"{Guid.NewGuid()}{extension}");
+            courier.LicenseImagePath = newPath;
 
-            courier.LicenseImagePath = await fileStorage.SaveAsync(content, $"{Guid.NewGuid()}{extension}");
-            await repository.SaveChangesAsync();
+            try
+            {
+                await repository.SaveChangesAsync();
+            }
+            catch
+            {
+                await fileStorage.DeleteAsync(newPath);
+                throw;
+            }
 
+            // Only delete the old image after the new path is safely stored
             if (previousPath is not null)
                 await fileStorage.DeleteAsync(previousPath);
 
-            return true;
+            logger.LogInformation("License image of courier {CourierId} updated ({Extension})", id, extension);
+            return Result.Success();
         }
-
     }
 }
