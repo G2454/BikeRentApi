@@ -11,6 +11,7 @@ http:
     data: |-
       {
         "identificador": "{{courierABId}}",
+        "senha": "senha12345",
         "nome": "Bruno AB",
         "cnpj": "{{courierABCnpj}}",
         "data_nascimento": "1991-02-02T00:00:00Z",

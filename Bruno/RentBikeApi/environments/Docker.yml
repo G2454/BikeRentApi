@@ -1,0 +1,14 @@
+name: Docker
+variables:
+  - name: baseUrl
+    value: http://localhost:8080
+    description: ""
+  - name: png
+    value: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=
+    description: ""
+  - name: bmp
+    value: Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAAATCwAAEwsAAAAAAAAAAAAA////AA==
+    description: ""
+  - name: jpeg
+    value: /9j/4AAQSkZJRgABAQAAAQABAAA=
+    description: ""

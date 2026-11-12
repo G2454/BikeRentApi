@@ -15,7 +15,9 @@ http:
         "data_inicio": "{{today}}T00:00:00Z",
         "plano": 7
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{courierA3Token}}"
 
 runtime:
   assertions:

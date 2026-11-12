@@ -8,3 +8,7 @@ extensions:
     ignore:
       - node_modules
       - .git
+request:
+  auth:
+    type: bearer
+    token: "{{adminToken}}"

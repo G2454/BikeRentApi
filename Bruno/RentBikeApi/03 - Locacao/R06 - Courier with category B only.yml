@@ -14,7 +14,9 @@ http:
         "moto_id": "{{rentMoto3Id}}",
         "plano": 7
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{courierBToken}}"
 
 runtime:
   assertions:

@@ -1,5 +1,5 @@
 info:
-  name: R07 - Courier does not exist
+  name: R07 - Renting for another courier
   type: http
   seq: 10
 
@@ -14,13 +14,17 @@ http:
         "moto_id": "{{rentMoto3Id}}",
         "plano": 7
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{courierA3Token}}"
 
 runtime:
   assertions:
     - expression: res.status
       operator: eq
-      value: "400"
+      value: "403"
     - expression: res.body.mensagem
       operator: eq
-      value: '"Dados inválidos"'
+      value: '"Acesso negado"'
+
+docs: 'Courier A3 tries to rent for another courier id. The token says who you are, so the API refuses with 403 before checking anything else.'

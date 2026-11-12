@@ -1,0 +1,35 @@
+info:
+  name: C21 - Login courier A3
+  type: http
+  seq: 21
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario": "{{courierA3Id}}",
+        "senha": "senha12345"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("courierA3Token", res.body.token);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'A courier logs in with its identificador and the senha sent at registration. Saves courierA3Token for the rental requests.'

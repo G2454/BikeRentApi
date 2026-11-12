@@ -1,0 +1,35 @@
+info:
+  name: C19 - Login courier AB
+  type: http
+  seq: 19
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario": "{{courierABId}}",
+        "senha": "senha12345"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("courierABToken", res.body.token);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'A courier logs in with its identificador and the senha sent at registration. Saves courierABToken for the rental requests.'

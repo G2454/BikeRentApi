@@ -212,6 +212,47 @@ namespace RentBikeApi.Infrastructure.Migrations
                     b.ToTable("rentals", (string)null);
                 });
 
+            modelBuilder.Entity("RentBikeApi.Domain.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("CourierId")
+                        .HasColumnType("text")
+                        .HasColumnName("courier_id");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
+
+                    b.HasKey("Id")
+                        .HasName("pk_users");
+
+                    b.HasIndex("CourierId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_courier_id");
+
+                    b.HasIndex("Username")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_username");
+
+                    b.ToTable("users", (string)null);
+                });
+
             modelBuilder.Entity("RentBikeApi.Domain.Entities.Rental", b =>
                 {
                     b.HasOne("RentBikeApi.Domain.Entities.Courier", null)
@@ -227,6 +268,15 @@ namespace RentBikeApi.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_rentals_motorcycles_motorcycle_id");
+                });
+
+            modelBuilder.Entity("RentBikeApi.Domain.Entities.User", b =>
+                {
+                    b.HasOne("RentBikeApi.Domain.Entities.Courier", null)
+                        .WithMany()
+                        .HasForeignKey("CourierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_users_couriers_courier_id");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+**/*.user
+Bruno/
+RentBikeApi/logs/
+RentBikeApi/storage/
+RentBikeApi.UnitTests/
+RentBikeApi.IntegrationTests/
+Specifications.md
+docker-compose.yaml
+Dockerfile

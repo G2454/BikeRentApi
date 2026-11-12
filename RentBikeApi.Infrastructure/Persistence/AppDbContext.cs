@@ -11,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Courier> Couriers => Set<Courier>();
     public DbSet<Rental> Rentals => Set<Rental>();
 
+    public DbSet<User> Users => Set<User>();
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         try
@@ -82,6 +84,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasDatabaseName(DatabaseErrorTranslator.OneOpenRentalPerCourier)
             .IsUnique()
             .HasFilter("return_date IS NULL");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.Property(u => u.Username).IsRequired();
+            entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.Role).HasConversion<string>().HasMaxLength(20);
+
+
+            entity.HasIndex(u => u.CourierId).IsUnique();
+            entity.HasOne<Courier>()
+            .WithMany()
+            .HasForeignKey(u => u.CourierId)
+            .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

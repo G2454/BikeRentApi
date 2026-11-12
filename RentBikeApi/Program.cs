@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using RentBikeApi.Auth;
 using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Domain.Services;
 using RentBikeApi.ErrorHandling;
+using RentBikeApi.Infrastructure.Auth;
 using RentBikeApi.Infrastructure.Messaging;
 using RentBikeApi.Infrastructure.Persistence;
 using RentBikeApi.Infrastructure.Repositories;
@@ -18,7 +20,6 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-
 
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
@@ -53,8 +54,15 @@ try
     builder.Services.AddScoped<IRentalRepository, RentalRepository>();
     builder.Services.AddScoped<IRentalService, RentalService>();
 
+    // Users and authentication
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddSingleton<IPasswordHasher, IdentityPasswordHasher>();
+    builder.Services.AddJwtAuthentication(builder.Configuration);
+
     // Error handling
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+    // UseExceptionHandler() refuses to start without it, even though our handler writes the response itself
     builder.Services.AddProblemDetails();
 
     builder.Services.AddControllers(options =>
@@ -64,29 +72,43 @@ try
     })
         .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = InvalidModelStateResponse.Create);
 
+    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
 
     var app = builder.Build();
 
-    app.UseMiddleware<CorrelationIdMiddleware>();   
-    app.UseSerilogRequestLogging();                 
+    await using (var scope = app.Services.CreateAsyncScope())
+    {
+        if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+            await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+
+        var adminUsername = app.Configuration["Auth:Admin:Username"];
+        var adminPassword = app.Configuration["Auth:Admin:Password"];
+        if (!string.IsNullOrWhiteSpace(adminUsername) && !string.IsNullOrWhiteSpace(adminPassword))
+            await scope.ServiceProvider.GetRequiredService<IAuthService>().EnsureAdminAsync(adminUsername, adminPassword);
+    }
+
+    app.UseMiddleware<CorrelationIdMiddleware>();  
+    app.UseSerilogRequestLogging();                  
     app.UseExceptionHandler();                      
 
-    if (app.Environment.IsDevelopment())
+    // API docs everywhere except Production (Development in Visual Studio, Docker in compose)
+    if (!app.Environment.IsProduction())
     {
-        app.MapOpenApi();
-        app.MapScalarApiReference();
+        app.MapOpenApi().AllowAnonymous();
+        app.MapScalarApiReference().AllowAnonymous();
     }
 
     app.UseHttpsRedirection();
 
-    app.UseAuthorization();
+    app.UseAuthentication();   
+    app.UseAuthorization();    
 
     app.MapControllers();
 
     app.Run();
 }
-catch (Exception exception) when (exception is not HostAbortedException)   // HostAbortedException = normal stop from "dotnet ef"
+catch (Exception exception) when (exception is not HostAbortedException)  
 {
     Log.Fatal(exception, "The application failed to start");
 }

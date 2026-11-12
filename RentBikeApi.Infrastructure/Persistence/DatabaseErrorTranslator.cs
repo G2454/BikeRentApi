@@ -26,7 +26,9 @@ public static class DatabaseErrorTranslator
                 "ix_couriers_license_number" => CourierErrors.LicenseNumberInUse,
                 OneOpenRentalPerMotorcycle => RentalErrors.MotorcycleUnavailable,
                 OneOpenRentalPerCourier => RentalErrors.CourierUnavailable,
+                "ix_users_username" => CourierErrors.IdInUse,   
                 _ => null
+
             },
 
             PostgresErrorCodes.ForeignKeyViolation => postgres.ConstraintName switch

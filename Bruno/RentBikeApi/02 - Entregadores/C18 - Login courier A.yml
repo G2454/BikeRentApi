@@ -1,0 +1,35 @@
+info:
+  name: C18 - Login courier A
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario": "{{courierAId}}",
+        "senha": "senha12345"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("courierAToken", res.body.token);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'A courier logs in with its identificador and the senha sent at registration. Saves courierAToken for the rental requests.'

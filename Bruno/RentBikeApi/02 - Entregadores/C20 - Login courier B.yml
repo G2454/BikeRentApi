@@ -1,0 +1,35 @@
+info:
+  name: C20 - Login courier B
+  type: http
+  seq: 20
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "usuario": "{{courierBId}}",
+        "senha": "senha12345"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("courierBToken", res.body.token);
+  assertions:
+    - expression: res.status
+      operator: eq
+      value: "200"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
+
+docs: 'A courier logs in with its identificador and the senha sent at registration. Saves courierBToken for the rental requests.'

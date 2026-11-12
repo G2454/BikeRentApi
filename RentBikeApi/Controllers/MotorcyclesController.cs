@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RentBikeApi.Auth;
 using RentBikeApi.Contracts;
 using RentBikeApi.Contracts.Motorcycles;
 using RentBikeApi.Domain.Errors;
@@ -7,11 +9,13 @@ using RentBikeApi.Mapping;
 
 namespace RentBikeApi.Controllers
 {
+
     [ApiController]
     [Route("motos")]
     public class MotorcyclesController(IMotorcycleService service) : ControllerBase
     {
         [HttpPost]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Create([FromBody] CreateMotorcycleRequest request)
         {
             var result = await service.CreateAsync(request.ToEntity());
@@ -38,6 +42,7 @@ namespace RentBikeApi.Controllers
         }
 
         [HttpPut("{id}/placa")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> UpdatePlate(string id, [FromBody] UpdatePlateRequest request)
         {
             var result = await service.UpdatePlateAsync(id, request.Plate);
@@ -47,6 +52,7 @@ namespace RentBikeApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Delete(string id)
         {
             var result = await service.DeleteAsync(id);

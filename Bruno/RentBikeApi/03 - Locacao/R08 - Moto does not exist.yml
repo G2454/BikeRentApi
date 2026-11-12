@@ -14,7 +14,9 @@ http:
         "moto_id": "does-not-exist-{{run}}",
         "plano": 7
       }
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{courierA3Token}}"
 
 runtime:
   assertions:

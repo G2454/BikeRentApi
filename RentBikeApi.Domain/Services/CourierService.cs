@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using RentBikeApi.Domain.Common;
 using RentBikeApi.Domain.Entities;
+using RentBikeApi.Domain.Enums;
 using RentBikeApi.Domain.Errors;
 using RentBikeApi.Domain.Interfaces;
 using RentBikeApi.Domain.Validation;
@@ -9,15 +10,16 @@ namespace RentBikeApi.Domain.Services
 {
     public class CourierService(
         ICourierRepository repository,
+        IUserRepository userRepository,
+        IPasswordHasher passwordHasher,
         IFileStorage fileStorage,
         ILogger<CourierService> logger) : ICourierService
     {
-        public async Task<Result> CreateAsync(Courier courier, string? licenseImageBase64)
+        public async Task<Result> CreateAsync(Courier courier, string password, string? licenseImageBase64)
         {
             courier.Cnpj = Cnpj.Normalize(courier.Cnpj);
             courier.LicenseNumber = new string((courier.LicenseNumber ?? string.Empty).Where(char.IsAsciiDigit).ToArray());
 
-            // 1. Rules that only need the request data (cheap, no I/O)
             if (string.IsNullOrWhiteSpace(courier.Id))
                 return CourierErrors.IdRequired;
 
@@ -40,14 +42,18 @@ namespace RentBikeApi.Domain.Services
                 courier.BirthDate > DateOnly.FromDateTime(DateTime.UtcNow))
                 return CourierErrors.InvalidBirthDate;
 
+            if (string.IsNullOrEmpty(password) || password.Length < User.PasswordMinLength)
+                return AuthErrors.WeakPassword;
+
             byte[]? imageContent = null;
             var imageExtension = string.Empty;
             if (!string.IsNullOrWhiteSpace(licenseImageBase64) &&
                 !LicenseImageParser.TryParse(licenseImageBase64, out imageContent, out imageExtension))
                 return CourierErrors.InvalidLicenseImage;
 
-            // 2. Rules that need the database
-            if (await repository.GetByIdAsync(courier.Id) is not null)
+      
+            if (await repository.GetByIdAsync(courier.Id) is not null ||
+                await userRepository.UsernameExistsAsync(courier.Id))
                 return CourierErrors.IdInUse;
 
             if (await repository.CnpjExistsAsync(courier.Cnpj))
@@ -56,19 +62,27 @@ namespace RentBikeApi.Domain.Services
             if (await repository.LicenseNumberExistsAsync(courier.LicenseNumber))
                 return CourierErrors.LicenseNumberInUse;
 
-            // 3. Everything is valid: write the file, then the row
             if (imageContent is not null)
                 courier.LicenseImagePath = await fileStorage.SaveAsync(imageContent, $"{Guid.NewGuid()}{imageExtension}");
 
             try
             {
                 await repository.AddAsync(courier);
+                await userRepository.AddAsync(new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = courier.Id,
+                    PasswordHash = passwordHasher.Hash(password),
+                    Role = UserRole.Courier,
+                    CourierId = courier.Id
+                });
+
+
                 await repository.SaveChangesAsync();
             }
             catch
             {
-                // The database refused the row (e.g. a concurrent request took the same CNPJ).
-                // Remove the image we just wrote, or it stays on disk forever with no owner.
+
                 if (courier.LicenseImagePath is not null)
                     await fileStorage.DeleteAsync(courier.LicenseImagePath);
                 throw;
@@ -101,7 +115,6 @@ namespace RentBikeApi.Domain.Services
                 throw;
             }
 
-            // Only delete the old image after the new path is safely stored
             if (previousPath is not null)
                 await fileStorage.DeleteAsync(previousPath);
 

@@ -11,6 +11,7 @@ http:
     data: |-
       {
         "identificador": "{{courierA3Id}}",
+        "senha": "senha12345",
         "nome": "Diana A",
         "cnpj": "{{courierA3Cnpj}}",
         "data_nascimento": "1988-07-20T00:00:00Z",

@@ -1,11 +1,51 @@
 services:
+  api:
+    build: .
+    ports: ["8080:8080"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=rentbike;Username=rentbike;Password=rentbike"
+      RabbitMq__Host: rabbitmq
+      RabbitMq__User: guest
+      RabbitMq__Password: guest
+      Jwt__SigningKey: "docker-only-signing-key-change-me-0123456789"
+      Auth__Admin__Username: admin
+      Auth__Admin__Password: admin12345
+    volumes:
+      - cnh-images:/app/storage            
+    depends_on:
+      postgres:
+        condition: service_healthy         
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
   postgres:
     image: postgres:17
     environment:
       POSTGRES_USER: rentbike
       POSTGRES_PASSWORD: rentbike
       POSTGRES_DB: rentbike
-    ports: ["5432:5432"]
+    ports: ["5432:5432"]                  
+    volumes:
+      - pgdata:/var/lib/postgresql/data   
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rentbike -d rentbike"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   rabbitmq:
     image: rabbitmq:4-management
     ports: ["5672:5672", "15672:15672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  cnh-images:
